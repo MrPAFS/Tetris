@@ -59,6 +59,19 @@ def draw_block(block, background,color,position_x,position_y,square_size):
             if array_of_block[i][k] == 1:
                 pygame.draw.rect(background,color,((position_x + k)*20,(position_y + i)*20, square_size, square_size))
 
+def switch(movent):
+    return {
+            'DOWN':(0,1),
+            'LEFT':(-1,0),
+            'RIGHT':(1,0)}[movent];
+
+def move(block,movement,position_x,position_y,mesh_shape):
+    move_x,move_y = switch(movement)
+    
+    position_x += move_x
+    position_y += move_y
+    
+    return (position_x,position_y)
 #             WHITE      DeepSkyBlue    RED      YELLOW   SpringGreen  DarkViolet     Silver
 colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192)]
 screen_shape = (480,640)
@@ -68,20 +81,31 @@ mesh_shape = (int(screen_shape[0]/square_size),int(screen_shape[1]/square_size))
 
 mesh = Mesh(mesh_shape)
 
+pos_x = 0
+pos_y = 0
 
 pygame.display.init()
 background = pygame.display.set_mode(screen_shape)
 
 play = True
+
+block = Block('I')
+
 while play:
-    
-    background.fill(colors[0])
-    pygame.display.update()
     
     for event in pygame.event.get():
         print(event)
         
         if event.type == pygame.QUIT:
             play = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == 275:
+                pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y,mesh_shape)
+            elif event.key == 276:
+                pos_x,pos_y = move(block,'LEFT',pos_x,pos_y,mesh_shape)
+    
+    background.fill(colors[0])
+    draw_block(block,background,colors[1],pos_x,pos_y,square_size)
+    pygame.display.update()
     
 pygame.display.quit()
