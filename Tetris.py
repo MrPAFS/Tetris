@@ -7,30 +7,14 @@ Created on Mon Feb 18 20:56:13 2019
 
 import pygame
 from random import randint
+from random import choice
 from Mesh import Mesh
 from Block import Block
 
-def adjust_block_position_x(position_x,block,mesh_size_x):
-    array_of_block = block.get_array_of_block()
+def generate_random_Block():
     
-    if position_x < 0:
-        for k in range(0,(-1)*position_x):
-            for i in range(0,5):
-                if array_of_block[i][k] == 1:
-                    return (-1)*k
-    elif position_x > mesh_size_x - 5:
-        temp = position_x + 5 - mesh_size_x
-        for k in range(4,4-temp,-1):
-            for i in range(0,5):
-                if array_of_block[i][k] == 1:
-                    return mesh_size_x - 1 - k
-          
-    return position_x
-
-def generate_random_Block(mesh_shape):
-    
-    possible_blocs_name = ['I','T','L','S-NORMAL','S-INVERTED','O']
-    block_name = possible_blocs_name[randint(0,5)]
+    possible_blocs_name = ['I','T','L-NORMAL','L-INVERTED','S-NORMAL','S-INVERTED','O']
+    block_name = choice(possible_blocs_name)
     block = Block(block_name)
     
     how_many_rotation = randint(0,4)
@@ -52,10 +36,10 @@ def switch(movent):
             'LEFT':(-1,0),
             'RIGHT':(1,0)}[movent];
     
-def move(block,movement,position_x,position_y,mesh_shape):
+def move(block,movement,position_x,position_y):
     move_x,move_y = switch(movement)
     
-    position_x = adjust_block_position_x(position_x+move_x,block,mesh_shape[0])
+    position_x = position_x+move_x
     position_y += move_y
     
     return (position_x,position_y)
@@ -83,7 +67,7 @@ background = pygame.display.set_mode(screen_shape)
 
 play = True
 
-block = Block('T')
+block = generate_random_Block()
 
 """pos_x,pos_y = move(block,'RIGHT',21,0,mesh_shape)
 
@@ -99,12 +83,12 @@ while play:
             play = False
         elif event.type == pygame.KEYDOWN:
             if event.key == 275:
-                pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y,mesh_shape)
+                pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y)
             elif event.key == 276:
-                pos_x,pos_y = move(block,'LEFT',pos_x,pos_y,mesh_shape)
-            elif event.key == 273:
+                pos_x,pos_y = move(block,'LEFT',pos_x,pos_y)
+            elif event.key == 100:
                 rotate(block,'CLOCKWISE')
-            elif event.key == 274:
+            elif event.key == 97:
                 rotate(block,'ANTICLOCKWISE')
     
     background.fill(colors[0])
