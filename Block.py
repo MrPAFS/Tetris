@@ -26,10 +26,10 @@ class Block:
         for i in block_index:
             self.__block[i[0]][i[1]] = 1
             
-    def rotate_right(self):
+    def rotate_clockwise(self):
         self.__block = list(zip(*reversed(self.__block)))
         
-    def rotate_left(self):
+    def rotate_anticlockwise(self):
         self.__block =list(reversed(list(zip(*self.__block))))
         
     def get_array_of_block(self):
