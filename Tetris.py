@@ -23,12 +23,12 @@ def generate_random_Block():
     
     return block
 
-def draw_block(block, background,color,position_x,position_y,square_size):
+def draw_block(block,color,position_x,position_y):
     array_of_block = block.get_array_of_block()
     for i in range(5):
         for k in range(5):
             if array_of_block[i][k] == 1:
-                pygame.draw.rect(background,color,((position_x + k)*20,(position_y + i)*20, square_size, square_size))
+                pygame.draw.rect(background,color,((position_x + k)*square_size,(position_y + i)*square_size, square_size, square_size))
 
 def switch(movent):
     return {
@@ -56,12 +56,12 @@ def adjust(block,pos_x):
             if (block.get_array_of_block()[k][i] == 1) & (pos_x + i < 0):
                 pos_x += 1
                 break;
-            elif (block.get_array_of_block()[k][i] == 1) & (pos_x + i >= 24):
+            elif (block.get_array_of_block()[k][i] == 1) & (pos_x + i >= screen_shape[0]/square_size):
                 pos_x -= 1
                 break;
                 
     return pos_x
-                
+
 #             WHITE      DeepSkyBlue    RED      YELLOW   SpringGreen  DarkViolet     Silver
 colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192)]
 screen_shape = (480,640)
@@ -101,7 +101,7 @@ while play:
     pos_y += drop_speed
     
     background.fill(colors[0])
-    draw_block(block,background,colors[1],pos_x,pos_y,square_size)
+    draw_block(block,colors[1],pos_x,pos_y)
     pygame.display.update()
     
     pygame.time.wait(5)
