@@ -4,41 +4,26 @@ Created on Mon Feb 18 21:22:14 2019
 
 @author: Casa
 """
-from Block import Block
-from Mesh import Mesh
+import pygame
 
-mesh = Mesh((5,5))
+colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192)]
+screen_shape = (480,640)
+rect_size = 20
 
-for i in mesh.get_array_of_mesh():
-    print(i)
+pygame.display.init()
+background = pygame.display.set_mode(screen_shape)
+
+play = True
+while play:
     
-print()
-
-block = Block('O')
-
-mesh.add_block(block,(3,1))
-
-for i in mesh.get_array_of_mesh():
-    print(i)
-print()
+    background.fill(colors[0])
+    pygame.draw.rect(background,colors[1],(20,0,rect_size,rect_size))
+    pygame.display.update()
     
-mesh.add_block(block,(3,3))
-
-for i in mesh.get_array_of_mesh():
-    print(i)
+    for event in pygame.event.get():
+        print(event)
+        
+        if event.type == pygame.QUIT:
+            play = False
     
-print()
-
-block = Block('I')
-    
-mesh.add_block(block,(3,4))
-
-for i in mesh.get_array_of_mesh():
-    print(i)
-    
-print()
-
-mesh.detect_full_line()
-
-for i in mesh.get_array_of_mesh():
-    print(i)
+pygame.display.quit()

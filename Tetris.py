@@ -39,7 +39,7 @@ def switch(movent):
 def move(block,movement,position_x,position_y):
     move_x,move_y = switch(movement)
     
-    position_x = position_x+move_x
+    position_x += move_x
     position_y += move_y
     
     return (position_x,position_y)
@@ -49,17 +49,29 @@ def rotate(block,direction):
         block.rotate_clockwise()
     elif(direction == 'ANTICLOCKWISE'):
         block.rotate_anticlockwise()
-
+        
+def adjust(block,pos_x):
+    for i in range(5):
+        for k in range(5):
+            if (block.get_array_of_block()[k][i] == 1) & (pos_x + i < 0):
+                pos_x += 1
+                break;
+            elif (block.get_array_of_block()[k][i] == 1) & (pos_x + i >= 24):
+                pos_x -= 1
+                break;
+                
+    return pos_x
+                
 #             WHITE      DeepSkyBlue    RED      YELLOW   SpringGreen  DarkViolet     Silver
 colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192)]
 screen_shape = (480,640)
 square_size = 20
-drop_speed = 0.1
+drop_speed = 0.01
 mesh_shape = (int(screen_shape[0]/square_size),int(screen_shape[1]/square_size))
 
 mesh = Mesh(mesh_shape)
 
-pos_x = 0
+pos_x = 9
 pos_y = 0
 
 pygame.display.init()
@@ -68,12 +80,6 @@ background = pygame.display.set_mode(screen_shape)
 play = True
 
 block = generate_random_Block()
-
-"""pos_x,pos_y = move(block,'RIGHT',21,0,mesh_shape)
-
-print(pos_x)
-print(pos_y)"""
-
 while play:
     
     for event in pygame.event.get():
@@ -90,9 +96,14 @@ while play:
                 rotate(block,'CLOCKWISE')
             elif event.key == 97:
                 rotate(block,'ANTICLOCKWISE')
+            pos_x = adjust(block,pos_x)
+    
+    pos_y += drop_speed
     
     background.fill(colors[0])
     draw_block(block,background,colors[1],pos_x,pos_y,square_size)
     pygame.display.update()
+    
+    pygame.time.wait(5)
     
 pygame.display.quit()
