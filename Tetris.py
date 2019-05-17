@@ -44,7 +44,7 @@ def move(block,movement,position_x,position_y):
     
     return (position_x,position_y)
 
-def rotate(block,direction):
+def rotate(direction):
     if(direction == 'CLOCKWISE'):
         block.rotate_clockwise()
     elif(direction == 'ANTICLOCKWISE'):
@@ -62,11 +62,33 @@ def adjust(block,pos_x):
                 
     return pos_x
 
+def stopCriterion(mesh,block,pos_x,pos_y):
+    array_of_block = block.get_array_of_block()
+    line = pos_y
+    
+    for i in range(4,-1,-1):
+        for j in range(0,5):
+            if array_of_block[i][j] == 1:
+                line -= i     
+    line -= 1
+        
+    array_of_mesh = mesh.get_array_of_mesh()
+    
+    for i in range(0,5):
+        if(array_of_mesh[line][pos_x+i]):
+            return True
+    
+    return False | (line == 33)
+    
+    
+    
+    
+
 #             WHITE      DeepSkyBlue    RED      YELLOW   SpringGreen  DarkViolet     Silver
 colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192)]
 screen_shape = (480,640)
 square_size = 20
-drop_speed = 0.01
+drop_speed = 0.5
 mesh_shape = (int(screen_shape[0]/square_size),int(screen_shape[1]/square_size))
 
 mesh = Mesh(mesh_shape)
@@ -80,6 +102,8 @@ background = pygame.display.set_mode(screen_shape)
 play = True
 
 block = generate_random_Block()
+
+clock = pygame.time.Clock()
 while play:
     
     for event in pygame.event.get():
@@ -104,6 +128,6 @@ while play:
     draw_block(block,colors[1],pos_x,pos_y)
     pygame.display.update()
     
-    pygame.time.wait(5)
+    clock.tick(12)
     
 pygame.display.quit()
