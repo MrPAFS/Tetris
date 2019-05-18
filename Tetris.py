@@ -30,6 +30,14 @@ def draw_block(block,color,position_x,position_y):
             if array_of_block[i][k] == 1:
                 pygame.draw.rect(background,color,((position_x + k)*square_size,(position_y + i)*square_size, square_size, square_size))
 
+def draw_mesh(mesh,blockColor):
+    array_of_mesh = mesh.get_array_of_mesh()
+    shape = mesh.get_shape()
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            if(array_of_mesh[i][j] == 1):
+                 pygame.draw.rect(background,blockColor,(j*square_size,i*square_size, square_size, square_size))
+
 def switch(movent):
     return {
             'DOWN':(0,1),
@@ -44,7 +52,7 @@ def move(block,movement,position_x,position_y):
     
     return (position_x,position_y)
 
-def rotate(direction):
+def rotate(block,direction):
     if(direction == 'CLOCKWISE'):
         block.rotate_clockwise()
     elif(direction == 'ANTICLOCKWISE'):
@@ -62,23 +70,20 @@ def adjust(block,pos_x):
                 
     return pos_x
 
+
 def stopCriterion(mesh,block,pos_x,pos_y):
     array_of_block = block.get_array_of_block()
-    line = pos_y
-    
-    for i in range(4,-1,-1):
-        for j in range(0,5):
-            if array_of_block[i][j] == 1:
-                line -= i     
-    line -= 1
-        
     array_of_mesh = mesh.get_array_of_mesh()
     
     for i in range(0,5):
-        if(array_of_mesh[line][pos_x+i]):
-            return True
+        for j in range(0,5):
+            if (array_of_block[i][j] == 1):
+                if pos_y+i+1 == mesh.get_shape()[0]:
+                    return True
+                if array_of_mesh[int(pos_y)+i+1][pos_x+j] == 1:
+                    return True
     
-    return False | (line == 33)
+    return False
     
     
     
@@ -89,7 +94,7 @@ colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211
 screen_shape = (480,640)
 square_size = 20
 drop_speed = 0.5
-mesh_shape = (int(screen_shape[0]/square_size),int(screen_shape[1]/square_size))
+mesh_shape = (int(screen_shape[1]/square_size),int(screen_shape[0]/square_size))
 
 mesh = Mesh(mesh_shape)
 
@@ -126,8 +131,17 @@ while play:
     
     background.fill(colors[0])
     draw_block(block,colors[1],pos_x,pos_y)
+    draw_mesh(mesh,colors[1])
     pygame.display.update()
     
-    clock.tick(12)
+    if int(pos_y) == pos_y:
+        if stopCriterion(mesh,block,pos_x,pos_y):
+            mesh.add_block(block,(int(pos_y),int(pos_x)))
+            block = generate_random_Block()
+            pos_x = 9
+            pos_y = 0
+            
     
+    clock.tick(12)
+
 pygame.display.quit()
