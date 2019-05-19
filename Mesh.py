@@ -18,7 +18,7 @@ class Mesh:
         for i in range(block_size[0]):
             for k in range(block_size[1]):
                 if array_of_block[i][k] == 1:
-                    self.__mesh[initial_location[0]+i][initial_location[1]+k] = 1
+                    self.__mesh[initial_location[0]+i][initial_location[1]+k] = block.get_color()
     
     def detect_full_line(self):
         temp = self.__mesh
@@ -26,7 +26,9 @@ class Mesh:
         for i in range(0,self.__shape[0]):
             counter = 0
             for k in range(0,self.__shape[1]):
-                counter += self.__mesh[i][k]
+                if(self.__mesh[i][k] != 0):
+                    counter += 1
+                    #counter += self.__mesh[i][k]
             if counter == self.__shape[1]:
                 full_lines.append(i)
             

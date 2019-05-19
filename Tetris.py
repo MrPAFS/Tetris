@@ -15,7 +15,10 @@ def generate_random_Block():
     
     possible_blocs_name = ['I','T','L-NORMAL','L-INVERTED','S-NORMAL','S-INVERTED','O']
     block_name = choice(possible_blocs_name)
-    block = Block(block_name)
+    
+    color = randint(1,6)
+    
+    block = Block(block_name,color)
     
     how_many_rotation = randint(0,4)
     for i in range(how_many_rotation):
@@ -23,20 +26,20 @@ def generate_random_Block():
     
     return block
 
-def draw_block(block,color,position_x,position_y):
+def draw_block(block,position_x,position_y):
     array_of_block = block.get_array_of_block()
     for i in range(5):
         for k in range(5):
             if array_of_block[i][k] == 1:
-                pygame.draw.rect(background,color,((position_x + k)*square_size,(position_y + i)*square_size, square_size, square_size))
+                pygame.draw.rect(background,colors[block.get_color()],((position_x + k)*square_size,(position_y + i)*square_size, square_size, square_size))
 
 def draw_mesh(mesh,blockColor):
     array_of_mesh = mesh.get_array_of_mesh()
     shape = mesh.get_shape()
     for i in range(shape[0]):
         for j in range(shape[1]):
-            if(array_of_mesh[i][j] == 1):
-                 pygame.draw.rect(background,blockColor,(j*square_size,i*square_size, square_size, square_size))
+            if(array_of_mesh[i][j] != 0):
+                 pygame.draw.rect(background,colors[int(array_of_mesh[i][j])],(j*square_size,i*square_size, square_size, square_size))
 
 def switch(movent):
     return {
@@ -73,7 +76,7 @@ def adjust(mesh,block,pos_x,pos_y):
                     return True
                 elif pos_x + i >= screen_shape[0]/square_size:
                     return True
-                elif array_of_mesh[line+k][pos_x+i] == 1:
+                elif array_of_mesh[line+k][pos_x+i] != 0:
                     return True
                 
     return False
@@ -88,14 +91,34 @@ def stopCriterion(mesh,block,pos_x,pos_y):
             if (array_of_block[i][j] == 1):
                 if pos_y+i+1 == mesh.get_shape()[0]:
                     return True
-                if array_of_mesh[int(pos_y)+i+1][pos_x+j] == 1:
+                if array_of_mesh[int(pos_y)+i+1][pos_x+j] != 0:
                     return True
     
     return False
     
+def temp(block,pos_y):
+    array_of_block = block.get_array_of_block()
     
+    a = 0
     
+    while a == 0:
+        for i in range(5):
+            a += array_of_block[0-pos_y][i]
+        if a == 0:
+            pos_y -= 1
     
+    return pos_y
+    
+def lose(mesh, block, pos_x,pos_y):
+    array_of_mesh = mesh.get_array_of_mesh()
+    array_of_block = block.get_array_of_block()
+    
+    for i in range(4,-1,-1):
+        for j in range(5):
+            if(array_of_block[i][j] == 1) & (array_of_mesh[i+int(pos_y)][j+pos_x] != 0):
+                return True     
+            
+    return False
 
 #             WHITE      DeepSkyBlue    RED      YELLOW   SpringGreen  DarkViolet     Silver
 colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192)]
@@ -115,9 +138,15 @@ background = pygame.display.set_mode(screen_shape)
 play = True
 
 block = generate_random_Block()
+pos_y = temp(block, pos_y)
 
 clock = pygame.time.Clock()
 while play:
+    
+    background.fill(colors[0])
+    draw_block(block,pos_x,pos_y)
+    draw_mesh(mesh,colors[1])
+    pygame.display.update()
     
     for event in pygame.event.get():
         print(event)
@@ -144,10 +173,7 @@ while play:
     
     pos_y += drop_speed
     
-    background.fill(colors[0])
-    draw_block(block,colors[1],pos_x,pos_y)
-    draw_mesh(mesh,colors[1])
-    pygame.display.update()
+    clock.tick(10)
     
     if int(pos_y) == pos_y:
         if stopCriterion(mesh,block,pos_x,pos_y):
@@ -156,8 +182,9 @@ while play:
             block = generate_random_Block()
             pos_x = 2
             pos_y = 0
+            pos_y = temp(block, pos_y)
             
-    
-    clock.tick(10)
+            if lose(mesh,block,pos_x,pos_y):
+                break
 
 pygame.display.quit()

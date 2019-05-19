@@ -16,7 +16,9 @@ class Block:
                 'S-INVERTED': [(1,3),(2,2),(2,3),(3,2)],
                 'O':[(2,1),(2,2),(3,1),(3,2)]} [block_name]
         
-    def __init__(self,block_name):
+    def __init__(self,block_name,color):
+        self.__color = color
+        
         self.__block = [[0,0,0,0,0],
                         [0,0,0,0,0],
                         [0,0,0,0,0],
@@ -35,3 +37,6 @@ class Block:
         
     def get_array_of_block(self):
         return self.__block
+    
+    def get_color(self):
+        return self.__color
