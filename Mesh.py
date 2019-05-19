@@ -21,7 +21,7 @@ class Mesh:
                     self.__mesh[initial_location[0]+i][initial_location[1]+k] = 1
     
     def detect_full_line(self):
-        
+        temp = self.__mesh
         full_lines = []
         for i in range(0,self.__shape[0]):
             counter = 0
@@ -32,7 +32,7 @@ class Mesh:
             
         for line in full_lines:
             i = line
-            while i >= 0:
+            while i > 0:
                 self.__mesh[i] = self.__mesh[i-1].copy()
                 i -= 1
                     

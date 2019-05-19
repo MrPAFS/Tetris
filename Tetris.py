@@ -58,17 +58,25 @@ def rotate(block,direction):
     elif(direction == 'ANTICLOCKWISE'):
         block.rotate_anticlockwise()
         
-def adjust(block,pos_x):
+def adjust(mesh,block,pos_x,pos_y):
+    array_of_block = block.get_array_of_block()
+    array_of_mesh = mesh.get_array_of_mesh()
+    
+    line = int(pos_y)
+    if line != pos_y:
+        line += 1
+    
     for i in range(5):
         for k in range(5):
-            if (block.get_array_of_block()[k][i] == 1) & (pos_x + i < 0):
-                pos_x += 1
-                break;
-            elif (block.get_array_of_block()[k][i] == 1) & (pos_x + i >= screen_shape[0]/square_size):
-                pos_x -= 1
-                break;
+            if array_of_block[k][i] == 1:
+                if pos_x + i < 0:
+                    return True
+                elif pos_x + i >= screen_shape[0]/square_size:
+                    return True
+                elif array_of_mesh[line+k][pos_x+i] == 1:
+                    return True
                 
-    return pos_x
+    return False
 
 
 def stopCriterion(mesh,block,pos_x,pos_y):
@@ -91,14 +99,14 @@ def stopCriterion(mesh,block,pos_x,pos_y):
 
 #             WHITE      DeepSkyBlue    RED      YELLOW   SpringGreen  DarkViolet     Silver
 colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192)]
-screen_shape = (480,640)
-square_size = 20
+screen_shape = (250,500)
+square_size = 25
 drop_speed = 0.5
 mesh_shape = (int(screen_shape[1]/square_size),int(screen_shape[0]/square_size))
 
 mesh = Mesh(mesh_shape)
 
-pos_x = 9
+pos_x = 2
 pos_y = 0
 
 pygame.display.init()
@@ -119,13 +127,20 @@ while play:
         elif event.type == pygame.KEYDOWN:
             if event.key == 275:
                 pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y)
+                if(adjust(mesh,block,pos_x,pos_y)):
+                    pos_x,pos_y = move(block,'LEFT',pos_x,pos_y)
             elif event.key == 276:
                 pos_x,pos_y = move(block,'LEFT',pos_x,pos_y)
+                if(adjust(mesh,block,pos_x,pos_y)):
+                    pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y)
             elif event.key == 100:
                 rotate(block,'CLOCKWISE')
+                if(adjust(mesh,block,pos_x,pos_y)):
+                    rotate(block,'ANTICLOCKWISE')
             elif event.key == 97:
                 rotate(block,'ANTICLOCKWISE')
-            pos_x = adjust(block,pos_x)
+                if(adjust(mesh,block,pos_x,pos_y)):
+                    rotate(block,'CLOCKWISE')
     
     pos_y += drop_speed
     
@@ -137,11 +152,12 @@ while play:
     if int(pos_y) == pos_y:
         if stopCriterion(mesh,block,pos_x,pos_y):
             mesh.add_block(block,(int(pos_y),int(pos_x)))
+            mesh.detect_full_line()
             block = generate_random_Block()
-            pos_x = 9
+            pos_x = 2
             pos_y = 0
             
     
-    clock.tick(12)
+    clock.tick(10)
 
 pygame.display.quit()
