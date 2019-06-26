@@ -4,10 +4,10 @@ Created on Mon Feb 18 21:22:14 2019
 
 @author: Casa
 """
-a = [0,0,0]
+from threading import Timer
 
-b = a.copy()
+def p():
+    print('30 segundos')
 
-a[0] = 1
-
-print(b[0])
+t = Timer(30,p);
+t.start()
