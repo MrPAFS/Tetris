@@ -11,6 +11,7 @@ from random import randint
 from random import choice
 from Mesh import Mesh
 from Block import Block
+from Environment_Exceptions import InvalidAction
 
 class Tetris:
 
@@ -28,26 +29,6 @@ class Tetris:
             block.rotate_clockwise()
 
         return block
-
-    #
-    def draw_block(self,background, colors, square_size, block, position_x, position_y):
-        array_of_block = block.get_array_of_block()
-        for i in range(5):
-            for k in range(5):
-                if array_of_block[i][k] == 1:
-                    pygame.draw.rect(background, colors[block.get_color()], ((position_x + k)*square_size, (position_y + i)*square_size, square_size, square_size))
-
-    #
-    def draw_mesh(self,background,colors,square_size,mesh,zero_mesh):
-        array_of_mesh = mesh.get_array_of_mesh()
-        shape = mesh.get_shape()
-        
-        for i in range(shape[0]):
-            for j in range(shape[1]):
-                #if(array_of_mesh[i][j] != 0):
-                real_pos_x = (j+zero_mesh)*square_size
-                pos_y = i*square_size
-                pygame.draw.rect(background,colors[int(array_of_mesh[i][j])],(real_pos_x,pos_y, square_size, square_size))
 
     def switch(self,movent):
         return {
@@ -142,165 +123,132 @@ class Tetris:
             3:500,
             4:800
                 }[number_of_full_lines]
-            
-    def start_menu(self,background, clock):
-        menu = True
-        menu_font = pygame.font.SysFont("monospace", 15)
-        
-        while menu:
-            
-            background.fill((255,255,255))
-            pygame.draw.rect(background,(240,240,240),(62.5,218.75,375,62.5))
-            label = menu_font.render("Pressione qualquer tecla para iniciar", 1, (0,0,0))
-            background.blit(label, (82.5, 242.5))
-            pygame.display.update()
-            
-            for event in pygame.event.get():
-            
-                if event.type == pygame.QUIT:
-                    return False
-                elif event.type == pygame.KEYDOWN:
-                    menu = False
-                    
-            clock.tick(16)
-        return True
+    
+    """
+        Constroi um array que constitui a observação do jogo
 
-    def lose_menu(self,background, clock):
-        menu = True
-        lose_font = pygame.font.SysFont("monospace", 30)
-        menu_font = pygame.font.SysFont("monospace", 15)
-        
-        while menu:
-            
-            background.fill((255,255,255))
-            pygame.draw.rect(background,(240,240,240),(62.5,218.75,375,62.5))
-            
-            label1 = lose_font.render("Você Perdeu", 1, (255,0,0))
-            background.blit(label1, (150, 188.75))
-            label2 = menu_font.render("Pressione qualquer tecla para iniciar", 1, (0,0,0))
-            background.blit(label2, (82.5, 242.5))
-            
-            pygame.display.update()
-            
-            for event in pygame.event.get():
-            
-                if event.type == pygame.QUIT:
-                    return False
-                elif event.type == pygame.KEYDOWN:
-                    menu = False
-                    
-            clock.tick(16)
-        return True
+        Parâmetros:
+        -------------------------------------
 
-    def play(self):
-        
-        zero_mesh = 5
-        #             WHITE      DeepSkyBlue    RED      YELLOW   SpringGreen  DarkViolet     Silver     Black
-        colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192),(0,0,0)]
-        screen_shape = (500,500)
-        square_size = 25
-        drop_speed = 1
-        mesh_shape = (20,10)
+        Retorno:
+            observation: A observação atual do ambiente
+    """
+    def make_observation():
 
-        mesh = Mesh(mesh_shape)
+        array_of_block = self.block.get_array_of_block()
+        array_of_mesh = self.block.get_array_of_mesh()
 
-        pos_x = 2 + zero_mesh
-        pos_y = 0
+        observation = np.zeros(self.mesh_shape)
 
-        pygame.init()
-        background = pygame.display.set_mode(screen_shape)
-        score_font = pygame.font.SysFont("monospace", 15)
-        pygame.mixer.music.load("Tetris Theme.mp3")
+        for i in range(self.mesh_shape[0]):
+            for j in range(self.mesh_shape[1]):
+                if (array_of_mesh[i][j] != 0):
+                    observation[i][j] = 1
 
-        block = self.generate_random_Block()
-        pos_y = self.toTop(block, pos_y)
+        for i in range(5):
+            for j in range(5):
+                if array_of_block[i][j] == 1:
+                    observation[self.pos_y + i][self.pos_x + j] = 1
+
+        return observation
+
+    """
+        Inicia o ambiente de jogo tetris
+
+        Parâmetros
+        ------------------------------------- 
+
+        Retorno
+        -------------------------------------
+
+    """
+    def __init__(self):
+
+        self.mesh_shape = (20,10)
+
+        return
+
+    """
+        Inicia a simulação do jogo tetris
+
+        Parâmetros
+        -------------------------------------
+
+        Retorno
+
+            observation: A observação atual do ambiente
+            score: A pontuação inicial do jogo, usada futuramente para calcular a recompensa
+            done: Indica o fim da simulação
+
+    """
+    def reset(self):
+
+        self.mesh = Mesh(mesh_shape)
+        self.block = self.generate_random_Block()
+
+        self.pos_x = 2
+        self.pos_y = self.toTop(self.block, 0)
 
         score = 0
+        observation = self.make_observation()
+        done = False
 
-        clock = pygame.time.Clock()
-        timer = time.time()
+        return observation, score, done
 
-        play = self.start_menu(background,clock)
+    """
+        Executa a próxima ação no ambiente
 
-        pygame.mixer.music.play(-1)
+        Parâmetros:
 
-        while play:
-        
-            background.fill(colors[7])
-        
-            self.draw_mesh(background,colors,square_size,mesh,zero_mesh)
-            self.draw_block(background,colors,square_size,block,pos_x,pos_y)
-            label = score_font.render("Score: " + str(score), 1, colors[0])
-            background.blit(label, (0, 0))
-            pygame.display.update()
-        
-            for event in pygame.event.get():
-                #print(event)
-            
-                if event.type == pygame.QUIT:
-                    play = False
-                elif event.type == pygame.KEYDOWN:
+            action (list com tipo uint): próxima ação a ser executada
+
+        Retorno:
+
+            observation: A observação atual do ambiente
+            reward: Recompensa dada pela ação
+            done: Indica o fim da simulação
+    """
+
+    def step(self,action):
+
+        if action == 0: #DOWN
+            #Será implementada após a função render
+        elif action == 1: #RIGHT
+            pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y)
+
+                if adjust(mesh,block,pos_x,pos_y):
+                    pos_x,pos_y = move(block,'LEFT',pos_x,pos_y)
+
+        elif action == 2: #LEFT
+            pos_x,pos_y = move(block,'LEFT',pos_x,pos_y)
                 
-                    if event.key == 275:
-                        pos_x,pos_y = self.move(block,'RIGHT',pos_x,pos_y)
-                    
-                        if(self.adjust(mesh,block,pos_x,pos_y,zero_mesh)):
-                            pos_x,pos_y = self.move(block,'LEFT',pos_x,pos_y)
-                        
-                    elif event.key == 276:
-                        pos_x,pos_y = self.move(block,'LEFT',pos_x,pos_y)
-                    
-                        if(self.adjust(mesh,block,pos_x,pos_y,zero_mesh)):
-                            pos_x,pos_y = self.move(block,'RIGHT',pos_x,pos_y)
-                        
-                    elif event.key == 100:
-                        self.rotate(block,'CLOCKWISE')
-                    
-                        if(self.adjust(mesh,block,pos_x,pos_y,zero_mesh)):
-                            self.rotate(block,'ANTICLOCKWISE')
-                        
-                    elif event.key == 97:
-                        self.rotate(block,'ANTICLOCKWISE')
-                    
-                        if(self.adjust(mesh,block,pos_x,pos_y,zero_mesh)):
-                            self.rotate(block,'CLOCKWISE')
-                        
-                    elif event.key ==  274:
-                        pos_y += drop_speed
-                        score += drop_speed
-                    
-                        if(self.adjust(mesh,block,pos_x,pos_y,zero_mesh)):
-                            pos_y -= drop_speed
-                            score -= drop_speed               
-        
-            if(time.time() - timer >= 0.5):
-                pos_y += drop_speed
-                if(self.adjust(mesh,block,pos_x,pos_y,zero_mesh)):
-                    pos_y -= drop_speed
-                timer = time.time()
-        
-            clock.tick(16)
-        
-            if pos_y == pos_y:
-                if self.stopCriterion(mesh,block,pos_x,pos_y,zero_mesh):
-                    mesh.add_block(block,(pos_y,pos_x-zero_mesh))
-                    score += self.calc_score(mesh.detect_full_line())
-                    block = self.generate_random_Block()
-                    pos_x = 2 + zero_mesh
-                    pos_y = 0
-                    pos_y = self.toTop(block, pos_y)
+            if(adjust(mesh,block,pos_x,pos_y)):
+                pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y)
+
+        elif action == 3: #CLOCKWISE
+            rotate(block,'CLOCKWISE')
                 
-                    if self.lose(mesh,block,pos_x,pos_y,zero_mesh):
-                        pygame.mixer.music.stop()
-                        if self.lose_menu(background,clock):
-                            pygame.mixer.music.play()
-                            mesh = Mesh(mesh_shape)
-                            score = 0
-                        else:
-                            break
+                if(adjust(mesh,block,pos_x,pos_y)):
+                    rotate(block,'ANTICLOCKWISE')
 
-        pygame.mixer.music.stop()
-        pygame.display.quit()
+        elif action == 4: #ANTICLOCKWISE
+            rotate(block,'ANTICLOCKWISE')
+                
+                if(adjust(mesh,block,pos_x,pos_y)):
+                    rotate(block,'CLOCKWISE')
+        else:
+            raise InvalidAction(str(action), [0,1,2,3,4])
 
-# if __name__ == "__main__":
-#     main()
+        return observation, reward, done
+
+    """
+        Renderiza a o frame atual do ambiente
+
+        Parâmetros
+            -------------------------------------
+        Retorno
+            -------------------------------------
+    """
+    def render(self):
+
+        return
