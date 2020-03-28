@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Feb 19 10:51:58 2019
-
-@author: Casa
-"""
-
 """ 
     Representa um bloco do Tetris
 
