@@ -10,7 +10,7 @@ from random import randint
 from random import choice
 from Mesh import Mesh
 from Block import Block
-from Environment_Exceptions import InvalidAction
+from EnvironmentExceptions import InvalidAction
 
 """
     Ambiente para treinamento de uma IA que joga tetris
@@ -246,7 +246,7 @@ class Tetris:
             if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, 0):
                 self.rotate(self.block, 'CLOCKWISE')
         else:
-            raise InvalidAction(str(action), [0,1,2,3,4])
+            raise InvalidAction(action, [0,1,2,3,4])
             
         self.pos_y += self.drop_speed
         if(self.adjust(self.mesh,self.block,self.pos_x,self.pos_y,zero_mesh=0)):
