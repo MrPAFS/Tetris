@@ -30,7 +30,7 @@ def generate_random_Block():
     return block
 
 #
-def draw_block(block,position_x,position_y):
+def draw_block(background,colors,square_size,block,position_x,position_y):
     array_of_block = block.get_array_of_block()
     for i in range(5):
         for k in range(5):
@@ -38,7 +38,7 @@ def draw_block(block,position_x,position_y):
                 pygame.draw.rect(background,colors[block.get_color()],((position_x + k)*square_size,(position_y + i)*square_size, square_size, square_size))
 
 #
-def draw_mesh(mesh):
+def draw_mesh(background,colors,square_size,mesh):
     array_of_mesh = mesh.get_array_of_mesh()
     shape = mesh.get_shape()
     
@@ -77,10 +77,6 @@ def adjust(mesh,block,real_pos_x,pos_y):
     
     pos_x = real_pos_x - zero_mesh
     
-    line = int(pos_y)
-    if line != pos_y:
-        line += 1
-    
     for i in range(5):
         for k in range(5):
             if array_of_block[k][i] == 1:
@@ -88,9 +84,9 @@ def adjust(mesh,block,real_pos_x,pos_y):
                     return True
                 elif pos_x + i >= shape[1]:
                     return True
-                elif line+k >= 20:
+                elif pos_y+k >= 20:
                     return True
-                elif array_of_mesh[line+k][pos_x+i] != 0:
+                elif array_of_mesh[pos_y+k][pos_x+i] != 0:
                     return True
                 
     return False
@@ -134,7 +130,7 @@ def lose(mesh, block,real_pos_x,pos_y):
     
     for i in range(4,-1,-1):
         for j in range(5):
-            if(array_of_block[i][j] == 1) & (array_of_mesh[i+int(pos_y)][j+pos_x] != 0):
+            if(array_of_block[i][j] == 1) & (array_of_mesh[i+pos_y][j+pos_x] != 0):
                 return True     
             
     return False
@@ -146,94 +142,164 @@ def calc_score(number_of_full_lines):
            3:500,
            4:800
             }[number_of_full_lines];
-
-#             WHITE      DeepSkyBlue    RED      YELLOW   SpringGreen  DarkViolet     Silver     Black
-colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192),(0,0,0)]
-#screen_shape = (250,500)
-screen_shape = (500,500)
-square_size = 25
-drop_speed = 1
-#mesh_shape = (int(screen_shape[1]/square_size),int(screen_shape[0]/square_size))
-mesh_shape = (20,10)
-
-mesh = Mesh(mesh_shape)
-
-pos_x = 2 + zero_mesh
-pos_y = 0
-
-pygame.display.init()
-background = pygame.display.set_mode(screen_shape)
-
-pygame.font.init()
-score_font = pygame.font.SysFont("monospace", 15)
-
-play = True
-
-block = generate_random_Block()
-pos_y = toTop(block, pos_y)
-
-score = 0
-
-clock = pygame.time.Clock()
-timer = time.time()
-
-while play:
+           
+def start_menu(background, clock):
+    menu = True
+    menu_font = pygame.font.SysFont("monospace", 15)
     
-    background.fill(colors[7])
-    draw_mesh(mesh)
-    draw_block(block,pos_x,pos_y)
-    label = score_font.render("Score: " + str(score), 1, colors[0])
-    background.blit(label, (0, 0))
-    pygame.display.update()
-    
-    for event in pygame.event.get():
-        #print(event)
+    while menu:
         
-        if event.type == pygame.QUIT:
-            play = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == 275:
-                pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y)
-                if(adjust(mesh,block,pos_x,pos_y)):
-                    pos_x,pos_y = move(block,'LEFT',pos_x,pos_y)
-            elif event.key == 276:
-                pos_x,pos_y = move(block,'LEFT',pos_x,pos_y)
-                if(adjust(mesh,block,pos_x,pos_y)):
-                    pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y)
-            elif event.key == 100:
-                rotate(block,'CLOCKWISE')
-                if(adjust(mesh,block,pos_x,pos_y)):
-                    rotate(block,'ANTICLOCKWISE')
-            elif event.key == 97:
-                rotate(block,'ANTICLOCKWISE')
-                if(adjust(mesh,block,pos_x,pos_y)):
-                    rotate(block,'CLOCKWISE')
-            elif event.key ==  274:
-                pos_y += drop_speed
-                score += drop_speed
-                if(adjust(mesh,block,pos_x,pos_y)):
-                    pos_y -= drop_speed
-                    score -= drop_speed
+        background.fill((255,255,255))
+        pygame.draw.rect(background,(240,240,240),(62.5,218.75,375,62.5))
+        label = menu_font.render("Pressione qualquer tecla para iniciar", 1, (0,0,0))
+        background.blit(label, (82.5, 242.5))
+        pygame.display.update()
+        
+        for event in pygame.event.get():
+        
+            if event.type == pygame.QUIT:
+                return False
+            elif event.type == pygame.KEYDOWN:
+                menu = False
                 
-    
-    if(time.time() - timer >= 0.5):
-        pos_y += drop_speed
-        if(adjust(mesh,block,pos_x,pos_y)):
-            pos_y -= drop_speed
-        timer = time.time()
-    
-    clock.tick(16)
-    
-    if int(pos_y) == pos_y:
-        if stopCriterion(mesh,block,pos_x,pos_y):
-            mesh.add_block(block,(int(pos_y),int(pos_x)-zero_mesh))
-            score += calc_score(mesh.detect_full_line())
-            block = generate_random_Block()
-            pos_x = 2 + zero_mesh
-            pos_y = 0
-            pos_y = toTop(block, pos_y)
-            
-            if lose(mesh,block,pos_x,pos_y):
-                break
+        clock.tick(16)
+    return True
 
-pygame.display.quit()
+def lose_menu(background, clock):
+    menu = True
+    lose_font = pygame.font.SysFont("monospace", 30)
+    menu_font = pygame.font.SysFont("monospace", 15)
+    
+    while menu:
+        
+        background.fill((255,255,255))
+        pygame.draw.rect(background,(240,240,240),(62.5,218.75,375,62.5))
+        
+        label1 = lose_font.render("Você Perdeu", 1, (255,0,0))
+        background.blit(label1, (150, 188.75))
+        label2 = menu_font.render("Pressione qualquer tecla para iniciar", 1, (0,0,0))
+        background.blit(label2, (82.5, 242.5))
+        
+        pygame.display.update()
+        
+        for event in pygame.event.get():
+        
+            if event.type == pygame.QUIT:
+                return False
+            elif event.type == pygame.KEYDOWN:
+                menu = False
+                
+        clock.tick(16)
+    return True
+
+def main():
+    #             WHITE      DeepSkyBlue    RED      YELLOW   SpringGreen  DarkViolet     Silver     Black
+    colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192),(0,0,0)]
+    screen_shape = (500,500)
+    square_size = 25
+    drop_speed = 1
+    mesh_shape = (20,10)
+
+    mesh = Mesh(mesh_shape)
+
+    pos_x = 2 + zero_mesh
+    pos_y = 0
+
+    pygame.init()
+    background = pygame.display.set_mode(screen_shape)
+    score_font = pygame.font.SysFont("monospace", 15)
+    pygame.mixer.music.load("Tetris Theme.mp3")
+
+    block = generate_random_Block()
+    pos_y = toTop(block, pos_y)
+
+    score = 0
+
+    clock = pygame.time.Clock()
+    timer = time.time()
+
+    play = start_menu(background,clock)
+
+    pygame.mixer.music.play(-1)
+
+
+    while play:
+    
+        background.fill(colors[7])
+    
+        draw_mesh(background,colors,square_size,mesh)
+        draw_block(background,colors,square_size,block,pos_x,pos_y)
+        label = score_font.render("Score: " + str(score), 1, colors[0])
+        background.blit(label, (0, 0))
+        pygame.display.update()
+    
+        for event in pygame.event.get():
+            #print(event)
+        
+            if event.type == pygame.QUIT:
+                play = False
+            elif event.type == pygame.KEYDOWN:
+            
+                if event.key == 275:
+                    pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y)
+                
+                    if(adjust(mesh,block,pos_x,pos_y)):
+                        pos_x,pos_y = move(block,'LEFT',pos_x,pos_y)
+                    
+                elif event.key == 276:
+                    pos_x,pos_y = move(block,'LEFT',pos_x,pos_y)
+                
+                    if(adjust(mesh,block,pos_x,pos_y)):
+                        pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y)
+                    
+                elif event.key == 100:
+                    rotate(block,'CLOCKWISE')
+                
+                    if(adjust(mesh,block,pos_x,pos_y)):
+                        rotate(block,'ANTICLOCKWISE')
+                    
+                elif event.key == 97:
+                    rotate(block,'ANTICLOCKWISE')
+                
+                    if(adjust(mesh,block,pos_x,pos_y)):
+                        rotate(block,'CLOCKWISE')
+                    
+                elif event.key ==  274:
+                    pos_y += drop_speed
+                    score += drop_speed
+                
+                    if(adjust(mesh,block,pos_x,pos_y)):
+                        pos_y -= drop_speed
+                        score -= drop_speed               
+    
+        if(time.time() - timer >= 0.5):
+            pos_y += drop_speed
+            if(adjust(mesh,block,pos_x,pos_y)):
+                pos_y -= drop_speed
+            timer = time.time()
+    
+        clock.tick(16)
+    
+        if pos_y == pos_y:
+            if stopCriterion(mesh,block,pos_x,pos_y):
+                mesh.add_block(block,(pos_y,pos_x-zero_mesh))
+                score += calc_score(mesh.detect_full_line())
+                block = generate_random_Block()
+                pos_x = 2 + zero_mesh
+                pos_y = 0
+                pos_y = toTop(block, pos_y)
+            
+                if lose(mesh,block,pos_x,pos_y):
+                    pygame.mixer.music.stop()
+                    if lose_menu(background,clock):
+                        pygame.mixer.music.play()
+                        mesh = Mesh(mesh_shape)
+                        score = 0
+                    else:
+                        break
+
+    pygame.mixer.music.stop()
+    pygame.display.quit()
+
+# if __name__ == "__main__":
+#     main()
