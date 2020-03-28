@@ -4,6 +4,7 @@
 """
 
 import pygame
+import numpy as np
 import time
 from random import randint
 from random import choice
@@ -136,10 +137,10 @@ class Tetris:
         Retorno:
             observation: A observação atual do ambiente
     """
-    def make_observation():
+    def make_observation(self):
 
         array_of_block = self.block.get_array_of_block()
-        array_of_mesh = self.block.get_array_of_mesh()
+        array_of_mesh = self.mesh.get_array_of_mesh()
 
         observation = np.zeros(self.mesh_shape)
 
@@ -168,6 +169,7 @@ class Tetris:
     def __init__(self):
 
         self.mesh_shape = (20,10)
+        self.drop_speed = 1
 
         return
 
@@ -186,17 +188,17 @@ class Tetris:
     """
     def reset(self):
 
-        self.mesh = Mesh(mesh_shape)
+        self.mesh = Mesh(self.mesh_shape)
         self.block = self.generate_random_Block()
 
         self.pos_x = 2
         self.pos_y = self.toTop(self.block, 0)
 
-        score = 0
+        self.score = 0
         observation = self.make_observation()
         done = False
 
-        return observation, score, done
+        return observation, self.score, done
 
     """
         Executa a próxima ação no ambiente
@@ -214,33 +216,55 @@ class Tetris:
 
     def step(self,action):
 
+        reward = 0
+        done = False
+
         if action == 0: #DOWN
             #Será implementada após a função render
+            a = 0
         elif action == 1: #RIGHT
-            pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y)
+            self.pos_x, self.pos_y = self.move(self.block, 'RIGHT', self.pos_x, self.pos_y)
 
-                if adjust(mesh,block,pos_x,pos_y):
-                    pos_x,pos_y = move(block,'LEFT',pos_x,pos_y)
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, 0):
+                self.pos_x, self.pos_y = self.move(self.block, 'LEFT', self.pos_x, self.pos_y)
 
         elif action == 2: #LEFT
-            pos_x,pos_y = move(block,'LEFT',pos_x,pos_y)
+            self.pos_x, self.pos_y = self.move(self.block, 'LEFT', self.pos_x, self.pos_y)
                 
-            if(adjust(mesh,block,pos_x,pos_y)):
-                pos_x,pos_y = move(block,'RIGHT',pos_x,pos_y)
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, 0):
+                self.pos_x, self.pos_y = self.move(self.block, 'RIGHT', self.pos_x, self.pos_y)
 
         elif action == 3: #CLOCKWISE
-            rotate(block,'CLOCKWISE')
+            self.rotate(self.block, 'CLOCKWISE')
                 
-                if(adjust(mesh,block,pos_x,pos_y)):
-                    rotate(block,'ANTICLOCKWISE')
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, 0):
+                self.rotate(block, 'ANTICLOCKWISE')
 
         elif action == 4: #ANTICLOCKWISE
-            rotate(block,'ANTICLOCKWISE')
+            self.rotate(self.block, 'ANTICLOCKWISE')
                 
-                if(adjust(mesh,block,pos_x,pos_y)):
-                    rotate(block,'CLOCKWISE')
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, 0):
+                self.rotate(self.block, 'CLOCKWISE')
         else:
             raise InvalidAction(str(action), [0,1,2,3,4])
+            
+        self.pos_y += self.drop_speed
+        if(self.adjust(self.mesh,self.block,self.pos_x,self.pos_y,zero_mesh=0)):
+            pos_y -= drop_speed
+        
+        if self.stopCriterion(self.mesh, self.block, self.pos_x, self.pos_y, 0):
+            self.mesh.add_block(self.block, (self.pos_y, self.pos_x))
+            reward += self.calc_score(self.mesh.detect_full_line())
+            block = self.generate_random_Block()
+            self.pos_x = 2
+            self.pos_y = self.toTop(self.block, 0)
+
+            if self.lose(self.mesh, self.block, self.pos_x, self.pos_y):
+                done = True
+
+        self.score += reward
+
+        observation = self.make_observation()
 
         return observation, reward, done
 
