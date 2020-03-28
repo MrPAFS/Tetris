@@ -65,7 +65,7 @@ class Mesh:
                     self.__mesh[initial_location[0]+i][initial_location[1]+k] = block.get_color()
     
     """
-    Detecta na malha as linhas completas na horizontal dado pelos blocos adicionados à malha e as apagam
+    Detecta na malha as linhas completas na horizontal, formadas pelos blocos adicionados à malha, e as apagam
 
     Argumentos:
     -------------------------------------
