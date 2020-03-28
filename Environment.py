@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Feb 18 20:56:13 2019
-
-@author: Casa
-"""
-
-"""
     Contém ambientes de simulação para um apredizado de máquina (Reinforcement Learning)
 """
 
@@ -19,7 +13,8 @@ from Environment_Exceptions import InvalidAction
 
 """
     Ambiente para treinamento de uma IA que joga tetris
-    OBS: O código do arquivo Tetris.py está sendo adaptado para melhor adequar para o treinamento de uma rede neural
+    
+    OBS: O código do arquivo Tetris.py está sendo modificado neste arquivo para melhor adequar para o treinamento de uma rede neural.
 """
 class Tetris:
 

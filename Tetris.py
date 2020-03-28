@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Feb 18 20:56:13 2019
-
-@author: Casa
-"""
 
 import pygame
 import time
@@ -301,5 +296,5 @@ def main():
     pygame.mixer.music.stop()
     pygame.display.quit()
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

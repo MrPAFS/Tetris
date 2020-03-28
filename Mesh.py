@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Feb 19 12:54:46 2019
-
-@author: Casa
-"""
 import numpy as np
 
 """ 
