@@ -5,6 +5,10 @@ Created on Mon Feb 18 20:56:13 2019
 @author: Casa
 """
 
+"""
+    Contém ambientes de simulação para um apredizado de máquina (Reinforcement Learning)
+"""
+
 import pygame
 import time
 from random import randint
@@ -13,6 +17,10 @@ from Mesh import Mesh
 from Block import Block
 from Environment_Exceptions import InvalidAction
 
+"""
+    Ambiente para treinamento de uma IA que joga tetris
+    OBS: O código do arquivo Tetris.py está sendo adaptado para melhor adequar para o treinamento de uma rede neural
+"""
 class Tetris:
 
     def generate_random_Block(self):
