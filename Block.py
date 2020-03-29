@@ -10,7 +10,7 @@
 class Block:
     
     """
-        Funciona como um switch, para cada tipo de bloco é dado os pontos que dão o formato no vetor
+        Funciona como um switch, para cada tipo de bloco é dado os pontos que dão o formato da parte observável dele
 
         Argumentos
 
