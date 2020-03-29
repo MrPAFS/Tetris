@@ -497,7 +497,7 @@ class Tetris:
     Retorno
     -------------------------------------
     """
-    def observation_shape():
+    def observation_shape(self):
         return self.mesh_shape
 
     """
@@ -508,5 +508,5 @@ class Tetris:
     Retorno
     -------------------------------------
     """
-    def action_scope_size():
+    def action_scope_size(self):
         return 5
