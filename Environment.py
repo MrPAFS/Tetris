@@ -194,6 +194,7 @@ class Tetris:
         self.square_size = 25
 
         self.begin_render = False
+        
 
         return
 
@@ -305,10 +306,13 @@ class Tetris:
         if(not self.begin_render):
             pygame.init()
             self.background = pygame.display.set_mode(self.screen_shape)
+            self.score_font = pygame.font.SysFont("monospace", 15)
         
         self.background.fill(self.colors[7])
         self.draw_mesh(self.background,self.colors,self.square_size,self.mesh, self.zero_mesh)
         self.draw_block(self.background,self.colors,self.square_size,self.block,self.pos_x,self.pos_y)
+        label = self.score_font.render("Score: " + str(self.score), 1, self.colors[0])
+        self.background.blit(label, (0, 0))
         pygame.display.update()
 
         return
