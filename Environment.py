@@ -5,7 +5,6 @@
 
 import pygame
 import numpy as np
-import time
 from random import randint
 from random import choice
 from Mesh import Mesh
@@ -20,8 +19,6 @@ from EnvironmentExceptions import InvalidAction
 class Tetris:
 
     def generate_random_Block(self):
-
-        print('ok')
 
         possible_blocs_name = ['I', 'T', 'L-NORMAL', 'L-INVERTED', 'S-NORMAL', 'S-INVERTED', 'O']   
         block_name = choice(possible_blocs_name)
@@ -137,14 +134,13 @@ class Tetris:
                 if array_of_block[i][k] == 1:
                     pygame.draw.rect(background,colors[block.get_color()],((position_x + k)*square_size,(position_y + i)*square_size, square_size, square_size))
 
-    def draw_mesh(self,background,colors,square_size,mesh):
+    def draw_mesh(self,background,colors,square_size,mesh,zero_mesh):
         array_of_mesh = mesh.get_array_of_mesh()
         shape = mesh.get_shape()
         
         for i in range(shape[0]):
             for j in range(shape[1]):
-                #if(array_of_mesh[i][j] != 0):
-                real_pos_x = (j)*square_size
+                real_pos_x = (j+zero_mesh)*square_size
                 pos_y = i*square_size
                 pygame.draw.rect(background,colors[int(array_of_mesh[i][j])],(real_pos_x,pos_y, square_size, square_size))
     
@@ -172,7 +168,7 @@ class Tetris:
         for i in range(5):
             for j in range(5):
                 if array_of_block[i][j] == 1:
-                    observation[self.pos_y + i][self.pos_x + j] = 1
+                    observation[self.pos_y + i][self.pos_x - self.zero_mesh + j] = 1
 
         return observation
 
@@ -190,10 +186,11 @@ class Tetris:
 
         self.mesh_shape = (20,10)
         self.drop_speed = 1
+        self.zero_mesh = 5
 
         #             WHITE      DeepSkyBlue    RED      YELLOW   SpringGreen  DarkViolet     Silver     Black
         self.colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192),(0,0,0)]
-        self.screen_shape = (250,500)
+        self.screen_shape = (500,500)
         self.square_size = 25
 
         self.begin_render = False
@@ -218,7 +215,7 @@ class Tetris:
         self.mesh = Mesh(self.mesh_shape)
         self.block = self.generate_random_Block()
 
-        self.pos_x = 2
+        self.pos_x = 2 + self.zero_mesh
         self.pos_y = self.toTop(self.block, 0)
 
         self.score = 0
@@ -252,41 +249,41 @@ class Tetris:
         elif action == 1: #RIGHT
             self.pos_x, self.pos_y = self.move(self.block, 'RIGHT', self.pos_x, self.pos_y)
 
-            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, 0):
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
                 self.pos_x, self.pos_y = self.move(self.block, 'LEFT', self.pos_x, self.pos_y)
 
         elif action == 2: #LEFT
             self.pos_x, self.pos_y = self.move(self.block, 'LEFT', self.pos_x, self.pos_y)
                 
-            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, 0):
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
                 self.pos_x, self.pos_y = self.move(self.block, 'RIGHT', self.pos_x, self.pos_y)
 
         elif action == 3: #CLOCKWISE
             self.rotate(self.block, 'CLOCKWISE')
                 
-            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, 0):
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
                 self.rotate(block, 'ANTICLOCKWISE')
 
         elif action == 4: #ANTICLOCKWISE
             self.rotate(self.block, 'ANTICLOCKWISE')
                 
-            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, 0):
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
                 self.rotate(self.block, 'CLOCKWISE')
         else:
             raise InvalidAction(action, [0,1,2,3,4])
             
         self.pos_y += self.drop_speed
-        if(self.adjust(self.mesh,self.block,self.pos_x,self.pos_y,zero_mesh=0)):
+        if(self.adjust(self.mesh,self.block,self.pos_x,self.pos_y, self.zero_mesh)):
             self.pos_y -= self.drop_speed
         
-        if self.stopCriterion(self.mesh, self.block, self.pos_x, self.pos_y, 0):
-            self.mesh.add_block(self.block, (self.pos_y, self.pos_x))
+        if self.stopCriterion(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
+            self.mesh.add_block(self.block, (self.pos_y, self.pos_x - self.zero_mesh))
             reward += self.calc_score(self.mesh.detect_full_line())
             self.block = self.generate_random_Block()
-            self.pos_x = 2
+            self.pos_x = 2 + self.zero_mesh
             self.pos_y = self.toTop(self.block, 0)
 
-            if self.lose(self.mesh, self.block, self.pos_x, self.pos_y, 0):
+            if self.lose(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
                 done = True
 
         self.score += reward
@@ -310,7 +307,7 @@ class Tetris:
             self.background = pygame.display.set_mode(self.screen_shape)
         
         self.background.fill(self.colors[7])
-        self.draw_mesh(self.background,self.colors,self.square_size,self.mesh)
+        self.draw_mesh(self.background,self.colors,self.square_size,self.mesh, self.zero_mesh)
         self.draw_block(self.background,self.colors,self.square_size,self.block,self.pos_x,self.pos_y)
         pygame.display.update()
 
