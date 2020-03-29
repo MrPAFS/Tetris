@@ -142,7 +142,22 @@ class Tetris:
         return False
 
 
-    #
+    """
+    Representa o critério que define se um bloco atingiu o estágio para ser adicionada a malha.
+
+    Argumentos
+        
+        mesh: A malha do jogo
+        block: O bloco a ser testado
+        zero_mesh: Representa a margem esquerda na tela antes do início da malha
+        real_pos_X: A abscissa do ponto inicial do bloco na malha mais a margem esquerda
+        pos_y: A ordenada do ponto inicial do bloco na malha
+
+    Retorno
+
+        boolean: Indica se o bloco deve ou não ser adicionado a malha
+    
+    """
     def stopCriterion(self,mesh,block,real_pos_x,pos_y,zero_mesh):
         array_of_block = block.get_array_of_block()
         array_of_mesh = mesh.get_array_of_mesh()
@@ -158,7 +173,20 @@ class Tetris:
                         return True
         
         return False
-        
+
+    """
+    Ajusta o bloco para que sua parte visível esteja na posição correta da tela
+
+    Argumentos
+
+        block: O bloco a ser analisado
+        pos_y: A ordenada do ponto inicial do bloco na malha
+
+    Retorno
+
+        pos_y: A nova ordenada do ponto inicial do bloco na malha
+    
+    """  
     def toTop(self,block,pos_y):
         array_of_block = block.get_array_of_block()
         
@@ -171,7 +199,23 @@ class Tetris:
                 pos_y -= 1
         
         return pos_y
-    #    
+
+    """
+    Testa se o jogo deve ser finalizado (GAME OVER)
+
+    Argumentos
+
+        mesh: A malha do jogo
+        block: O último bloco gerado
+        zero_mesh: Representa a margem esquerda na tela antes do início da malha
+        real_pos_X: A abscissa do ponto inicial do bloco na malha mais a margem esquerda
+        pos_y: A ordenada do ponto inicial do bloco na malha
+
+    Retorno
+
+        boolean: A resultado do teste
+    
+    """   
     def lose(self,mesh, block,real_pos_x,pos_y,zero_mesh):
         array_of_mesh = mesh.get_array_of_mesh()
         array_of_block = block.get_array_of_block()
@@ -185,6 +229,18 @@ class Tetris:
                 
         return False
 
+    """
+    Cálcula a pontuação obtida dada a quantidade de linhas horizontais preenchidas
+    
+    Argumentos
+
+        number_of_full_lines: A quantidade de linhas horizontais preenchidas
+
+    Retorno
+
+        ***: A pontuação dada pela quantidade de linhas horizontais preenchidas
+    
+    """
     def calc_score(self,number_of_full_lines):
         return{0:0,
             1:100,
@@ -193,6 +249,24 @@ class Tetris:
             4:800
                 }[number_of_full_lines]
 
+    """
+    Desenha um bloco na tela
+
+    Argumentos
+
+        background: O fundo da tela
+        color: Uma lista que contém o correspondente o valor rgb respectivo de block.get_color()*
+        square_size: O altura e comprimento, em pixels, das partes do bloco*
+        block: O bloco a ser desenhado
+        position_x: A abscissa do ponto inicial do bloco na malha mais a margem esquerda
+        position_y: A ordenada do ponto inicial do bloco na malha
+
+    Retorno
+    -------------------------------------
+
+    *Ver Block.py
+
+    """
     def draw_block(self,background,colors,square_size,block,position_x,position_y):
         array_of_block = block.get_array_of_block()
         for i in range(5):
@@ -200,6 +274,24 @@ class Tetris:
                 if array_of_block[i][k] == 1:
                     pygame.draw.rect(background,colors[block.get_color()],((position_x + k)*square_size,(position_y + i)*square_size, square_size, square_size))
 
+    """
+    Desenha a malha na tela
+
+    Argumentos
+
+        background: O fundo da tela
+        color: Uma lista que contém o correspondente o valor rgb respectivo dos valores contidos em mesh.get_array_of_mesh()*
+        square_size: O altura e comprimento, em pixels, das partes do bloco**
+        mesh: A malha do jogo
+        zero_mesh: A margem esquerda da malha
+
+    Retorno
+    -------------------------------------
+
+    *Ver Mesh.py
+    **Ver Block.py
+    
+    """
     def draw_mesh(self,background,colors,square_size,mesh,zero_mesh):
         array_of_mesh = mesh.get_array_of_mesh()
         shape = mesh.get_shape()
