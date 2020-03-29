@@ -36,7 +36,7 @@ class Block:
     Argumentos
 
         block_name: O tipo do bloco (I, T, L-NORMAL, L-INVERTED, S-NORMAL, S-INVERTED ou O)
-        color: A cor correspondente ao bloco
+        color: A cor do bloco
 
     Retorno
     -------------------------------------    
