@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+!!!!!!!!!!!!!!!!!!!!!!!!!!!ATENÇÃO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+ESSE CÓDIGO ESTA SENDO ADAPTADO EM Environment.py PARA ADEQUA-LO PARA TREINAMENTO DE UMA IA, ESTE AQUI ESTÁ DESATUALIZADO E NÃO SERÁ MAIS MODIFICADO. ESSE CÓDIGO FOI CRIADO INICIALMENTE PARA DESENVOLVER A LÓGICA DO JOGO.
+PARA UM USUÁRIO CONSEGUIR JOGA-LO É NESCESSÁRIO QUE AS DUAS ÚLTIMAS LINHAS SEJAM EDITADAS PARA DEIXAREM DE SEREM COMENTÁRIOS.
+
+OBS: ADICIONE UM ARQUIVO "Tetris Theme.mp3" PARA EXECUÇÃO
+"""
 import pygame
 import time
 from random import randint
@@ -296,5 +303,5 @@ def main():
     pygame.mixer.music.stop()
     pygame.display.quit()
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
