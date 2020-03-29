@@ -478,5 +478,35 @@ class Tetris:
 
         return
     
+    """
+    Encerra a tela do jogo
+
+    Argumentos
+    -------------------------------------
+    Retorno
+    -------------------------------------
+    """
     def close(self):
         pygame.display.quit()
+
+    """
+    Fornece as dimensões do array da observação
+
+    Argumentos
+    -------------------------------------
+    Retorno
+    -------------------------------------
+    """
+    def observation_shape():
+        return self.mesh_shape
+
+    """
+    Fornece a quantidade total de ações possíveis
+    
+    Argumentos
+    -------------------------------------
+    Retorno
+    -------------------------------------
+    """
+    def action_scope_size():
+        return 5
