@@ -17,7 +17,16 @@ from EnvironmentExceptions import InvalidAction
     OBS: O código do arquivo Tetris.py está sendo modificado neste arquivo para melhor adequar para o treinamento de uma rede neural.
 """
 class Tetris:
+    """
+    Gera um bloco de um tipo aleatório e de uma cor aleatória
 
+    Argumentos
+    -------------------------------------
+    Retorno
+
+        block: O bloco gerado
+
+    """
     def generate_random_Block(self):
 
         possible_blocs_name = ['I', 'T', 'L-NORMAL', 'L-INVERTED', 'S-NORMAL', 'S-INVERTED', 'O']   
@@ -33,12 +42,41 @@ class Tetris:
 
         return block
 
+    """
+    Função equivalente a um switch do C, dado o tipo do movimento (DOWN, LEFT ou RIGHT) é retornado o vetor respectivo
+
+    Argumentos
+
+        movement: O tipo do movimento(DOWN, LEFT ou RIGHT)
+
+    Retorno
+
+        ***: O vetor respectivo ao movimento
+    
+    """
     def switch(self,movent):
         return {
                 'DOWN':(0,1),
                 'LEFT':(-1,0),
                 'RIGHT':(1,0)}[movent]
-        
+    
+    """
+    Movimenta o bloco no plano
+
+    Argumentos
+
+        block: O bloco a ser movimentado
+        movement: O tipo do movimento (DOWN, LEFT ou RIGHT)
+        position_x: A abscissa do ponto inicial do bloco no plano
+        position_y: A ordenada do ponto inicial do bloco no plano
+
+    Retorno
+
+        position_x: A nova abscissa do ponto inicial do bloco
+        position_y: A nova ordenada do ponto inicial do bloco
+
+    OBS: Verificar arquivo block.py e método reset para entender melhor como funciona um bloco e sua localização
+    """
     def move(self,block,movement,position_x,position_y):
         move_x,move_y = self.switch(movement)
         
@@ -47,13 +85,41 @@ class Tetris:
         
         return (position_x,position_y)
 
+    """
+    Rotaciona um bloco no sentido horário ou anti-horário
+
+    Argumentos
+
+        block: O bloco a ser rotacionado
+        direction: Define se a rotação é no sentido horário ou anti-horário
+
+    Retorno
+    -------------------------------------
+
+    OBS: Ver código Block.py para melhor entender o funcionamento de um bloco
+    """
     def rotate(self,block,direction):
         if(direction == 'CLOCKWISE'):
             block.rotate_clockwise()
         elif(direction == 'ANTICLOCKWISE'):
             block.rotate_anticlockwise()
     
-    #       
+    """
+    Movimentar ou rotacionar um bloco pode jogar sua parte observável para fora da malha, esse função identifica se ocorreu esse e erro
+
+    Argumentos
+
+        mesh: A malha do jogo
+        block: Um bloco do jogo
+        zero_mesh: Representa a margem esquerda na tela antes do início da malha
+        real_pos_x: A abscissa do ponto inicial do bloco na malha mais a margem esquerda
+        pos_y: A ordenada do ponto inicial do bloco na malha
+    
+    Retorno:
+
+        boolean: Identifica se ocorreu ou não o erro
+
+    """       
     def adjust(self,mesh,block,real_pos_x,pos_y,zero_mesh):
         array_of_block = block.get_array_of_block()
         array_of_mesh = mesh.get_array_of_mesh()
