@@ -290,7 +290,7 @@ class Tetris:
 
     *Ver Mesh.py
     **Ver Block.py
-    
+
     """
     def draw_mesh(self,background,colors,square_size,mesh,zero_mesh):
         array_of_mesh = mesh.get_array_of_mesh()
@@ -403,8 +403,11 @@ class Tetris:
         done = False
 
         if action == 0: #DOWN
-            #Será implementada após a função render
-            a = 0
+            self.pos_y += self.drop_speed
+            reward += self.drop_speed
+            if(self.adjust(self.mesh,self.block,self.pos_x,self.pos_y, self.zero_mesh)):
+                self.pos_y -= self.drop_speed
+                reward -= self.drop_speed
         elif action == 1: #RIGHT
             self.pos_x, self.pos_y = self.move(self.block, 'RIGHT', self.pos_x, self.pos_y)
 
