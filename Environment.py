@@ -21,6 +21,8 @@ class Tetris:
 
     def generate_random_Block(self):
 
+        print('ok')
+
         possible_blocs_name = ['I', 'T', 'L-NORMAL', 'L-INVERTED', 'S-NORMAL', 'S-INVERTED', 'O']   
         block_name = choice(possible_blocs_name)
 
@@ -127,6 +129,24 @@ class Tetris:
             3:500,
             4:800
                 }[number_of_full_lines]
+
+    def draw_block(self,background,colors,square_size,block,position_x,position_y):
+        array_of_block = block.get_array_of_block()
+        for i in range(5):
+            for k in range(5):
+                if array_of_block[i][k] == 1:
+                    pygame.draw.rect(background,colors[block.get_color()],((position_x + k)*square_size,(position_y + i)*square_size, square_size, square_size))
+
+    def draw_mesh(self,background,colors,square_size,mesh):
+        array_of_mesh = mesh.get_array_of_mesh()
+        shape = mesh.get_shape()
+        
+        for i in range(shape[0]):
+            for j in range(shape[1]):
+                #if(array_of_mesh[i][j] != 0):
+                real_pos_x = (j)*square_size
+                pos_y = i*square_size
+                pygame.draw.rect(background,colors[int(array_of_mesh[i][j])],(real_pos_x,pos_y, square_size, square_size))
     
     """
         Constroi um array que constitui a observação do jogo
@@ -170,6 +190,13 @@ class Tetris:
 
         self.mesh_shape = (20,10)
         self.drop_speed = 1
+
+        #             WHITE      DeepSkyBlue    RED      YELLOW   SpringGreen  DarkViolet     Silver     Black
+        self.colors = [(255,255,255),(0,191,255),(255,0,0),(255,255,0),(0,255,127),(148,0,211),(192,192,192),(0,0,0)]
+        self.screen_shape = (250,500)
+        self.square_size = 25
+
+        self.begin_render = False
 
         return
 
@@ -250,16 +277,16 @@ class Tetris:
             
         self.pos_y += self.drop_speed
         if(self.adjust(self.mesh,self.block,self.pos_x,self.pos_y,zero_mesh=0)):
-            pos_y -= drop_speed
+            self.pos_y -= self.drop_speed
         
         if self.stopCriterion(self.mesh, self.block, self.pos_x, self.pos_y, 0):
             self.mesh.add_block(self.block, (self.pos_y, self.pos_x))
             reward += self.calc_score(self.mesh.detect_full_line())
-            block = self.generate_random_Block()
+            self.block = self.generate_random_Block()
             self.pos_x = 2
             self.pos_y = self.toTop(self.block, 0)
 
-            if self.lose(self.mesh, self.block, self.pos_x, self.pos_y):
+            if self.lose(self.mesh, self.block, self.pos_x, self.pos_y, 0):
                 done = True
 
         self.score += reward
@@ -278,4 +305,16 @@ class Tetris:
     """
     def render(self):
 
+        if(not self.begin_render):
+            pygame.init()
+            self.background = pygame.display.set_mode(self.screen_shape)
+        
+        self.background.fill(self.colors[7])
+        self.draw_mesh(self.background,self.colors,self.square_size,self.mesh)
+        self.draw_block(self.background,self.colors,self.square_size,self.block,self.pos_x,self.pos_y)
+        pygame.display.update()
+
         return
+    
+    def close(self):
+        pygame.display.quit()
