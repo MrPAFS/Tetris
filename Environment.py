@@ -422,7 +422,7 @@ class Tetris:
             self.rotate(self.block, 'CLOCKWISE')
                 
             if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
-                self.rotate(block, 'ANTICLOCKWISE')
+                self.rotate(self.block, 'ANTICLOCKWISE')
 
         elif action == 4: #ANTICLOCKWISE
             self.rotate(self.block, 'ANTICLOCKWISE')
@@ -512,5 +512,5 @@ class Tetris:
     """
     Retorna a pontuação total até o momento
     """
-    def get_score():
+    def get_score(self):
         return self.score
