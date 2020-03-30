@@ -352,8 +352,9 @@ class Tetris:
         self.square_size = 25
 
         self.begin_render = False
-        
 
+        self.score = -1
+        
         return
 
     """
@@ -365,8 +366,6 @@ class Tetris:
         Retorno
 
             observation: A observação atual do ambiente
-            score: A pontuação inicial do jogo, usada futuramente para calcular a recompensa
-            done: Indica o fim da simulação
 
     """
     def reset(self):
@@ -379,9 +378,8 @@ class Tetris:
 
         self.score = 0
         observation = self.make_observation()
-        done = False
 
-        return observation, self.score, done
+        return observation
 
     """
         Executa a próxima ação no ambiente
@@ -510,3 +508,9 @@ class Tetris:
     """
     def action_scope_size(self):
         return 5
+
+    """
+    Retorna a pontuação total até o momento
+    """
+    def get_score():
+        return self.score
