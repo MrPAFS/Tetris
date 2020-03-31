@@ -502,6 +502,8 @@ class Tetris:
 
             if self.lose(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
                 done = True
+                self.mesh = Mesh(self.mesh_shape)
+                self.score = 0
 
         self.score += reward
 
@@ -626,6 +628,8 @@ class Tetris:
                 if self.lose(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
                     done = True
                     play = self.lose_menu(self.background, clock)
+                    self.mesh = Mesh(self.mesh_shape)
+                    self.score = 0
 
             next_state = self.make_observation().flatten()
 
@@ -634,7 +638,7 @@ class Tetris:
                 state = next_state
                 action = 0
                 change_state = False
-                print("History lenght: {}".format(len(history)), end="")
+                print("\rHistory lenght: {}".format(len(history)), end="")
                 self.score += reward
         
         self.close()
