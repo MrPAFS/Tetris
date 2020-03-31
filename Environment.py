@@ -303,6 +303,14 @@ class Tetris:
                 pos_y = i*square_size
                 pygame.draw.rect(background,colors[int(array_of_mesh[i][j])],(real_pos_x,pos_y, square_size, square_size))
 
+    """
+    Inicia a tela do jogo
+
+    Argumentos
+    -------------------------------------
+    Retorno
+    -------------------------------------
+    """
     def init_display(self):
         pygame.init()
         self.background = pygame.display.set_mode(self.screen_shape)
@@ -310,6 +318,18 @@ class Tetris:
         self.menu_font = pygame.font.SysFont("monospace", 15)
         self.begin_render = True
 
+    """
+    Renderiza o menu iniciar
+
+    Argumentos
+
+        clock: O relógio que define o fps
+
+    Retorno
+        
+        boolean: Indica o inicio do jogo ou se ele deve ser encerrado
+
+    """
     def start_menu(self, clock):
         menu = True
 
@@ -334,20 +354,32 @@ class Tetris:
             clock.tick(16)
         return True
 
-    def lose_menu(self,background, clock):
+    """
+    Renderiza uma tela de game over
+
+    Argumentos
+
+        clock: O relógio que define o fps
+
+    Retorno
+        
+        boolean: Indica o inicio do jogo ou se ele deve ser encerrado
+        
+    """
+    def lose_menu(self, clock):
         menu = True
         lose_font = pygame.font.SysFont("monospace", 30)
         menu_font = pygame.font.SysFont("monospace", 15)
         
         while menu:
             
-            background.fill((255,255,255))
-            pygame.draw.rect(background,(240,240,240),(62.5,218.75,375,62.5))
+            self.background.fill((255,255,255))
+            pygame.draw.rect(self.background,(240,240,240),(62.5,218.75,375,62.5))
             
             label1 = lose_font.render("Você Perdeu", 1, (255,0,0))
-            background.blit(label1, (150, 188.75))
+            self.background.blit(label1, (150, 188.75))
             label2 = menu_font.render("Pressione qualquer tecla para iniciar", 1, (0,0,0))
-            background.blit(label2, (82.5, 242.5))
+            self.background.blit(label2, (82.5, 242.5))
             
             pygame.display.update()
             
@@ -440,7 +472,14 @@ class Tetris:
 
         return observation
 
+    """
+    Executa uma ação
 
+    Argumentos
+    -------------------------------------
+    Retorno
+    -------------------------------------
+    """
     def run_action(self, action):
 
         if action == 1: #RIGHT
@@ -470,7 +509,7 @@ class Tetris:
             raise InvalidAction(action, [0,1,2,3,4])
     
     """
-        Executa a próxima ação no ambiente
+        Executa a próxima ação no ambiente, calcula a recompensa, a observação resultante e se é um estado final
 
         Parâmetros:
 
@@ -515,9 +554,9 @@ class Tetris:
         Renderiza a o frame atual do ambiente
 
         Parâmetros
-            -------------------------------------
+        -------------------------------------
         Retorno
-            -------------------------------------
+        -------------------------------------
     """
     def render(self):
 
@@ -572,6 +611,16 @@ class Tetris:
     def get_score(self):
         return self.score
 
+    """
+    Executa o jogo e salva os histórico de execução do usuário
+
+    Argumentos
+    -------------------------------------
+    Retorno
+
+        history: Uma lista contendo histórico da ações executadas, cada registro possui o estado, a ação, a recompensa, o estado resultante e se é um estado final
+
+    """
     def play(self):
         history = []
 
