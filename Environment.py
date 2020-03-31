@@ -431,22 +431,8 @@ class Tetris:
 
         return observation
 
-    """
-        Executa a próxima ação no ambiente
-
-        Parâmetros:
-
-            action (list com tipo uint): próxima ação a ser executada
-
-        Retorno:
-
-            observation: A observação atual do ambiente
-            reward: Recompensa dada pela ação
-            done: Indica o fim da simulação
-    """
 
     def run_action(self, action):
-        reward = 0
 
         if action == 1: #RIGHT
             self.pos_x, self.pos_y = self.move(self.block, 'RIGHT', self.pos_x, self.pos_y)
@@ -473,45 +459,26 @@ class Tetris:
                 self.rotate(self.block, 'CLOCKWISE')
         else:
             raise InvalidAction(action, [0,1,2,3,4])
+    
+    """
+        Executa a próxima ação no ambiente
 
-        return reward
+        Parâmetros:
 
+            action (list com tipo uint): próxima ação a ser executada
+
+        Retorno:
+
+            observation: A observação atual do ambiente
+            reward: Recompensa dada pela ação
+            done: Indica o fim da simulação
+    """
     def step(self,action):
 
-        reward = 0
+        reward = 1
         done = False
 
-        if action == 0: #DOWN
-            self.pos_y += self.drop_speed
-            reward += self.drop_speed
-            if(self.adjust(self.mesh,self.block,self.pos_x,self.pos_y, self.zero_mesh)):
-                self.pos_y -= self.drop_speed
-                reward -= self.drop_speed
-        elif action == 1: #RIGHT
-            self.pos_x, self.pos_y = self.move(self.block, 'RIGHT', self.pos_x, self.pos_y)
-
-            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
-                self.pos_x, self.pos_y = self.move(self.block, 'LEFT', self.pos_x, self.pos_y)
-
-        elif action == 2: #LEFT
-            self.pos_x, self.pos_y = self.move(self.block, 'LEFT', self.pos_x, self.pos_y)
-                
-            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
-                self.pos_x, self.pos_y = self.move(self.block, 'RIGHT', self.pos_x, self.pos_y)
-
-        elif action == 3: #CLOCKWISE
-            self.rotate(self.block, 'CLOCKWISE')
-                
-            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
-                self.rotate(self.block, 'ANTICLOCKWISE')
-
-        elif action == 4: #ANTICLOCKWISE
-            self.rotate(self.block, 'ANTICLOCKWISE')
-                
-            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
-                self.rotate(self.block, 'CLOCKWISE')
-        else:
-            raise InvalidAction(action, [0,1,2,3,4])
+        self.run_action(action)
             
         self.pos_y += self.drop_speed
         if(self.adjust(self.mesh,self.block,self.pos_x,self.pos_y, self.zero_mesh)):
@@ -531,7 +498,7 @@ class Tetris:
 
         observation = self.make_observation()
 
-        return observation, 1, done
+        return observation, reward, done
 
     """
         Renderiza a o frame atual do ambiente
@@ -657,7 +624,7 @@ class Tetris:
             next_state = self.make_observation().flatten()
 
             if change_state:
-                history.append((state, action,reward, next_state, done))
+                history.append((state, action, reward, next_state, done))
                 state = next_state
                 action = 0
                 change_state = False
