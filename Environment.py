@@ -481,8 +481,10 @@ class Tetris:
     -------------------------------------
     """
     def run_action(self, action):
-
-        if action == 1: #RIGHT
+        
+        if action == 0:
+            return
+        elif action == 1: #RIGHT
             self.pos_x, self.pos_y = self.move(self.block, 'RIGHT', self.pos_x, self.pos_y)
 
             if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
@@ -676,7 +678,7 @@ class Tetris:
 
                 if self.lose(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
                     done = True
-                    play = self.lose_menu(self.background, clock)
+                    play = self.lose_menu(clock)
                     self.mesh = Mesh(self.mesh_shape)
                     self.score = 0
 
