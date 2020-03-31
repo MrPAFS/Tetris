@@ -302,17 +302,26 @@ class Tetris:
                 real_pos_x = (j+zero_mesh)*square_size
                 pos_y = i*square_size
                 pygame.draw.rect(background,colors[int(array_of_mesh[i][j])],(real_pos_x,pos_y, square_size, square_size))
-    
-    def start_menu(self, background, clock):
+
+    def init_display(self):
+        pygame.init()
+        self.background = pygame.display.set_mode(self.screen_shape)
+        self.score_font = pygame.font.SysFont("monospace", 15)
+        self.menu_font = pygame.font.SysFont("monospace", 15)
+        self.begin_render = True
+
+    def start_menu(self, clock):
         menu = True
-        menu_font = pygame.font.SysFont("monospace", 15)
+
+        if(not self.begin_render):
+            self.init_display()
         
         while menu:
             
-            background.fill((255,255,255))
-            pygame.draw.rect(background,(240,240,240),(62.5,218.75,375,62.5))
-            label = menu_font.render("Pressione qualquer tecla para iniciar", 1, (0,0,0))
-            background.blit(label, (82.5, 242.5))
+            self.background.fill((255,255,255))
+            pygame.draw.rect(self.background,(240,240,240),(62.5,218.75,375,62.5))
+            label = self.menu_font.render("Pressione qualquer tecla para iniciar", 1, (0,0,0))
+            self.background.blit(label, (82.5, 242.5))
             pygame.display.update()
             
             for event in pygame.event.get():
@@ -511,9 +520,7 @@ class Tetris:
     def render(self):
 
         if(not self.begin_render):
-            pygame.init()
-            self.background = pygame.display.set_mode(self.screen_shape)
-            self.score_font = pygame.font.SysFont("monospace", 15)
+            self.init_display()
         
         self.background.fill(self.colors[7])
         self.draw_mesh(self.background,self.colors,self.square_size,self.mesh, self.zero_mesh)
@@ -573,8 +580,7 @@ class Tetris:
 
         done = False
 
-        # play = self.start_menu(self.background,clock)
-        play = True
+        play = self.start_menu(clock)
 
         action = 0
         change_state = False
