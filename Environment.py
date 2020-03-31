@@ -7,6 +7,7 @@ import pygame
 import numpy as np
 from random import randint
 from random import choice
+import time
 from Mesh import Mesh
 from Block import Block
 from EnvironmentExceptions import InvalidAction
@@ -302,6 +303,55 @@ class Tetris:
                 pos_y = i*square_size
                 pygame.draw.rect(background,colors[int(array_of_mesh[i][j])],(real_pos_x,pos_y, square_size, square_size))
     
+    def start_menu(self, background, clock):
+        menu = True
+        menu_font = pygame.font.SysFont("monospace", 15)
+        
+        while menu:
+            
+            background.fill((255,255,255))
+            pygame.draw.rect(background,(240,240,240),(62.5,218.75,375,62.5))
+            label = menu_font.render("Pressione qualquer tecla para iniciar", 1, (0,0,0))
+            background.blit(label, (82.5, 242.5))
+            pygame.display.update()
+            
+            for event in pygame.event.get():
+            
+                if event.type == pygame.QUIT:
+                    return False
+                elif event.type == pygame.KEYDOWN:
+                    menu = False
+                    
+            clock.tick(16)
+        return True
+
+    def lose_menu(self,background, clock):
+        menu = True
+        lose_font = pygame.font.SysFont("monospace", 30)
+        menu_font = pygame.font.SysFont("monospace", 15)
+        
+        while menu:
+            
+            background.fill((255,255,255))
+            pygame.draw.rect(background,(240,240,240),(62.5,218.75,375,62.5))
+            
+            label1 = lose_font.render("Você Perdeu", 1, (255,0,0))
+            background.blit(label1, (150, 188.75))
+            label2 = menu_font.render("Pressione qualquer tecla para iniciar", 1, (0,0,0))
+            background.blit(label2, (82.5, 242.5))
+            
+            pygame.display.update()
+            
+            for event in pygame.event.get():
+            
+                if event.type == pygame.QUIT:
+                    return False
+                elif event.type == pygame.KEYDOWN:
+                    menu = False
+                    
+            clock.tick(16)
+        return True
+
     """
         Constroi um array que constitui a observação do jogo
 
@@ -316,7 +366,7 @@ class Tetris:
         array_of_block = self.block.get_array_of_block()
         array_of_mesh = self.mesh.get_array_of_mesh()
 
-        observation = np.zeros(self.mesh_shape)
+        observation = np.zeros(self.mesh_shape, dtype=np.float32)
 
         for i in range(self.mesh_shape[0]):
             for j in range(self.mesh_shape[1]):
@@ -395,6 +445,37 @@ class Tetris:
             done: Indica o fim da simulação
     """
 
+    def run_action(self, action):
+        reward = 0
+
+        if action == 1: #RIGHT
+            self.pos_x, self.pos_y = self.move(self.block, 'RIGHT', self.pos_x, self.pos_y)
+
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
+                self.pos_x, self.pos_y = self.move(self.block, 'LEFT', self.pos_x, self.pos_y)
+
+        elif action == 2: #LEFT
+            self.pos_x, self.pos_y = self.move(self.block, 'LEFT', self.pos_x, self.pos_y)
+                
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
+                self.pos_x, self.pos_y = self.move(self.block, 'RIGHT', self.pos_x, self.pos_y)
+
+        elif action == 3: #CLOCKWISE
+            self.rotate(self.block, 'CLOCKWISE')
+                
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
+                self.rotate(self.block, 'ANTICLOCKWISE')
+
+        elif action == 4: #ANTICLOCKWISE
+            self.rotate(self.block, 'ANTICLOCKWISE')
+                
+            if self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
+                self.rotate(self.block, 'CLOCKWISE')
+        else:
+            raise InvalidAction(action, [0,1,2,3,4])
+
+        return reward
+
     def step(self,action):
 
         reward = 0
@@ -450,7 +531,7 @@ class Tetris:
 
         observation = self.make_observation()
 
-        return observation, reward, done
+        return observation, 1, done
 
     """
         Renderiza a o frame atual do ambiente
@@ -514,3 +595,75 @@ class Tetris:
     """
     def get_score(self):
         return self.score
+
+    def play(self):
+        history = []
+
+        state = self.reset().flatten()
+
+        clock = pygame.time.Clock()
+        timer = time.time()
+
+        done = False
+
+        # play = self.start_menu(self.background,clock)
+        play = True
+
+        action = 0
+        change_state = False
+        while play:
+
+            self.render()
+
+            reward = 1
+            for event in pygame.event.get():
+
+                if event.type == pygame.QUIT:
+                    play = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == 275: 
+                        self.run_action(1)
+                        action = 1
+                    elif event.key == 276: 
+                        self.run_action(2)
+                        action = 2
+                    elif event.key == 100: 
+                        self.run_action(3)
+                        action = 3
+                    elif event.key == 97: 
+                        self.run_action(4)
+                        action = 4
+            
+            if(time.time() - timer >= 0.5):
+                self.pos_y += self.drop_speed
+                if(self.adjust(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh)):
+                    self.pos_y -= self.drop_speed
+                timer = time.time()
+                change_state = True
+
+            clock.tick(16)
+
+            if self.stopCriterion(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
+                self.mesh.add_block(self.block, (self.pos_y, self.pos_x - self.zero_mesh))
+                reward += self.calc_score(self.mesh.detect_full_line())
+                self.block = self.generate_random_Block()
+                self.pos_x = 2 + self.zero_mesh
+                self.pos_y = self.toTop(self.block, 0)
+
+                if self.lose(self.mesh, self.block, self.pos_x, self.pos_y, self.zero_mesh):
+                    done = True
+                    play = self.lose_menu(self.background, clock)
+
+            next_state = self.make_observation().flatten()
+
+            if change_state:
+                history.append((state, action,reward, next_state, done))
+                state = next_state
+                action = 0
+                change_state = False
+                print("History lenght: {}".format(len(history)), end="")
+                self.score += reward
+        
+        self.close()
+
+        return history
