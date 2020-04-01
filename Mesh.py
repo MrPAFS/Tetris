@@ -39,8 +39,6 @@ class Mesh:
         
         array_of_block = block.get_array_of_block()
         block_size = (len(array_of_block),len(array_of_block[0]))
-
-        print(initial_location)
         
         for i in range(block_size[0]):
             

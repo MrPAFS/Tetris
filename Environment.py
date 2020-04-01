@@ -442,8 +442,6 @@ class Tetris:
         self.screen_shape = (500,500)
         self.square_size = 25
 
-        self.begin_render = False
-
         self.score = -1
         
         return
@@ -469,6 +467,8 @@ class Tetris:
 
         self.score = 0
         observation = self.make_observation()
+        
+        self.begin_render = False
 
         return observation
 
