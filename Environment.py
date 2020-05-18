@@ -249,6 +249,7 @@ class Tetris:
             3:500,
             4:800
                 }[number_of_full_lines]
+        
 
     """
     Desenha um bloco na tela
