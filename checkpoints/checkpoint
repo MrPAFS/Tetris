@@ -1,2 +1,2 @@
-model_checkpoint_path: "48000_episodes_tetris"
-all_model_checkpoint_paths: "48000_episodes_tetris"
+model_checkpoint_path: "50000_episodes_tetris"
+all_model_checkpoint_paths: "50000_episodes_tetris"
