@@ -43,6 +43,8 @@ class Block:
     """
     def __init__(self,block_name,color):
         self.__color = color
+        self.__block_name = block_name
+        self.__I_rotation_control = 0
         
         self.__block = [[0,0,0,0,0],
                         [0,0,0,0,0],
@@ -63,6 +65,8 @@ class Block:
     -------------------------------------
     """
     def rotate_clockwise(self):
+        if self.__block_name == 'O':
+            return
         self.__block = list(zip(*reversed(self.__block)))
        
     """
@@ -74,6 +78,8 @@ class Block:
     -------------------------------------
     """ 
     def rotate_anticlockwise(self):
+        if self.__block_name == 'O':
+            return
         self.__block =list(reversed(list(zip(*self.__block))))
 
     """
