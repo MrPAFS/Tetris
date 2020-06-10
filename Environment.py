@@ -6,7 +6,8 @@
 import pygame
 import numpy as np
 from random import randint
-from random import choice
+# from random import choice
+from random import random
 import time
 from Mesh import Mesh
 from Block import Block
@@ -18,6 +19,8 @@ from EnvironmentExceptions import InvalidAction
     OBS: O código do arquivo Tetris.py está sendo modificado neste arquivo para melhor adequar para o treinamento de uma rede neural.
 """
 class Tetris:
+    block_history = [0,0,0,0,0,0,0]
+    total_blocks = 0
     """
     Gera um bloco de um tipo aleatório e de uma cor aleatória
 
@@ -29,9 +32,38 @@ class Tetris:
 
     """
     def generate_random_Block(self):
+        
+        possible_blocks_name = ['I', 'T', 'L-NORMAL', 'L-INVERTED', 'S-NORMAL', 'S-INVERTED', 'O']  
+        blocks_probability = [1/7,1/7,1/7,1/7,1/7,1/7,1/7]
+        # block_name = choice(possible_blocks_name)
+        try:
+            weights = [block_count/self.total_blocks for block_count in self.block_history]
+            biases = [blocks_probability[i]*weights[i] for i in range(7)]
+            
+            for i in range(7):
+                for j in range(7):
+                    if i == j:
+                        blocks_probability[j] -= biases[i]
+                    else:
+                        blocks_probability[j] += biases[i]/6.0
 
-        possible_blocs_name = ['I', 'T', 'L-NORMAL', 'L-INVERTED', 'S-NORMAL', 'S-INVERTED', 'O']   
-        block_name = choice(possible_blocs_name)
+        except ZeroDivisionError:
+            pass
+
+        print(blocks_probability)
+        accumulated_probability = 0
+        random_threshold = []
+        for prob in blocks_probability:
+            random_threshold.append(prob+accumulated_probability)
+            accumulated_probability += prob
+
+        rand_number = random()
+        for i in range(7):
+            if rand_number < random_threshold[i]:
+                block_name = possible_blocks_name[i]
+                self.total_blocks += 1
+                self.block_history[i] += 1
+                break
 
         color = randint(1, 6)
 
@@ -585,6 +617,9 @@ class Tetris:
     """
     def close(self):
         pygame.display.quit()
+        
+        self.block_history = [0,0,0,0,0,0,0]
+        self.total_blocks = 0
 
     """
     Fornece as dimensões do array da observação
@@ -690,7 +725,7 @@ class Tetris:
                 state = next_state
                 action = 0
                 change_state = False
-                print("\rHistory lenght: {}".format(len(history)), end="")
+                # print("\rHistory lenght: {}".format(len(history)), end="")
                 self.score += reward
         
         self.close()
