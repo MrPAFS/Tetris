@@ -35,7 +35,7 @@ class Tetris:
         
         possible_blocks_name = ['I', 'T', 'L-NORMAL', 'L-INVERTED', 'S-NORMAL', 'S-INVERTED', 'O']  
         blocks_probability = [1/7,1/7,1/7,1/7,1/7,1/7,1/7]
-        # block_name = choice(possible_blocks_name)
+
         try:
             weights = [block_count/self.total_blocks for block_count in self.block_history]
             biases = [blocks_probability[i]*weights[i] for i in range(7)]
@@ -50,7 +50,6 @@ class Tetris:
         except ZeroDivisionError:
             pass
 
-        print(blocks_probability)
         accumulated_probability = 0
         random_threshold = []
         for prob in blocks_probability:
@@ -725,7 +724,7 @@ class Tetris:
                 state = next_state
                 action = 0
                 change_state = False
-                # print("\rHistory lenght: {}".format(len(history)), end="")
+                print("\rHistory lenght: {}".format(len(history)), end="")
                 self.score += reward
         
         self.close()
